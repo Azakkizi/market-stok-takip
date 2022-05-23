@@ -4,10 +4,29 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="mudurCalisan">
     </Component>
+    <Container class="javax.swing.JPopupMenu" name="popup">
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="exit">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Programdan &#xc7;&#x131;k"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exitActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
     <Property name="title" type="java.lang.String" value="Giri&#x15f; yap / &#xdc;ye Ol"/>
+    <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+      <Color id="Default Cursor"/>
+    </Property>
     <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
@@ -44,6 +63,11 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
         <Container class="javax.swing.JPanel" name="girisSekme">
+          <Properties>
+            <Property name="componentPopupMenu" type="javax.swing.JPopupMenu" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="popup"/>
+            </Property>
+          </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Giri&#x15f; Yap">
@@ -138,26 +162,30 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="u_kAdiLabel" min="-2" max="-2" attributes="0"/>
                                   <Component id="u_sifreLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="secim" min="-2" max="-2" attributes="0"/>
+                                  <Component id="emailLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="mudurRB" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                                      <Component id="calisanRB" min="-2" max="-2" attributes="0"/>
-                                  </Group>
                                   <Component id="u_kAdiTextF" max="32767" attributes="0"/>
-                                  <Component id="u_sifrePassF" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
+                                  <Component id="u_sifrePassF" alignment="0" pref="200" max="32767" attributes="0"/>
+                                  <Component id="emailTextF" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="164" max="-2" attributes="0"/>
                               <Component id="uyeOlButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                              <Component id="secim" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="mudurRB" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="calisanRB" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace pref="60" max="32767" attributes="0"/>
@@ -177,15 +205,20 @@
                           <Component id="u_sifreLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="u_sifrePassF" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="emailLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="emailTextF" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="secim" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="mudurRB" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="calisanRB" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="uyeOlButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="59" max="32767" attributes="0"/>
+                      <EmptySpace pref="56" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -201,6 +234,11 @@
                 <Property name="text" type="java.lang.String" value="&#x15e;ifre:"/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JLabel" name="emailLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Email:"/>
+              </Properties>
+            </Component>
             <Component class="javax.swing.JLabel" name="secim">
               <Properties>
                 <Property name="text" type="java.lang.String" value="L&#xfc;tfen se&#xe7;iniz:"/>
@@ -209,6 +247,8 @@
             <Component class="javax.swing.JTextField" name="u_kAdiTextF">
             </Component>
             <Component class="javax.swing.JPasswordField" name="u_sifrePassF">
+            </Component>
+            <Component class="javax.swing.JTextField" name="emailTextF">
             </Component>
             <Component class="javax.swing.JRadioButton" name="mudurRB">
               <Properties>

@@ -166,7 +166,7 @@ public class EkleCikar extends javax.swing.JFrame {
                 dlm.addElement(bos);
                 liste.setModel(dlm);
                 break;
-            case 1:
+            case 1: //katı gıda seçiliyse
                 //önce combocox'taki diğer ürünleri temizleme
                 urunCB.removeAllItems();
                 Baglanti bkg = new Baglanti();
@@ -340,7 +340,7 @@ public class EkleCikar extends javax.swing.JFrame {
                 case 2: //sıvı gıda seçili ise
                     try {
                         b.baglan();
-                        ps1 = b.c.prepareStatement("SELECT SGADI FROM SIVIGIDA");
+                        ps1 = b.c.prepareStatement("SELECT * FROM SIVIGIDA");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
                             String varolan = rs.getString("SGADI");
@@ -354,7 +354,7 @@ public class EkleCikar extends javax.swing.JFrame {
                                     //int stok = Integer.parseInt(stokF.getText());
                                     int stok = (Integer) (stokSpinner.getValue());
                                     PreparedStatement ps2;
-                                    ps2 = b.c.prepareStatement("INSERT INTO KATIGIDA(SGADI,SGSTOK) VALUES (?,?)");
+                                    ps2 = b.c.prepareStatement("INSERT INTO SIVIGIDA(SGADI,SGSTOK) VALUES (?,?)");
                                     //ilk sütun(0. sütun) id numarası olacağı için değerleri yerleştirmeye 1. sütundan başlarız
                                     ps2.setString(1, urunAdi);
                                     ps2.setInt(2, stok);
@@ -378,7 +378,7 @@ public class EkleCikar extends javax.swing.JFrame {
                 case 3: //temizlik seçili ise
                     try {
                         b.baglan();
-                        ps1 = b.c.prepareStatement("SELECT TADI FROM TEMIZLIK");
+                        ps1 = b.c.prepareStatement("SELECT * FROM TEMIZLIK");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
                             String varolan = rs.getString("TADI");
@@ -416,7 +416,7 @@ public class EkleCikar extends javax.swing.JFrame {
                 case 4: //bakım seçili ise
                     try {
                         b.baglan();
-                        ps1 = b.c.prepareStatement("SELECT BADI FROM BAKIM");
+                        ps1 = b.c.prepareStatement("SELECT * FROM BAKIM");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
                             String varolan = rs.getString("BADI");
@@ -470,13 +470,17 @@ public class EkleCikar extends javax.swing.JFrame {
             Baglanti b = new Baglanti();
             PreparedStatement ps1;
             ResultSet rs;
+            try {
+                b.baglan();
+            } catch(ClassNotFoundException | SQLException ex) {
+                Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
+            }
             switch (cesitCB.getSelectedIndex()) {
                 case 0: //çeşit seçiniz seçili ise
                     JOptionPane.showMessageDialog(this, "Lütfen ürün çeşidi seçiniz!");
                     break;
                 case 1: //katı gıda seçili ise
                     try {
-                        b.baglan();
                         ps1 = b.c.prepareStatement("SELECT * FROM KATIGIDA");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
@@ -486,35 +490,29 @@ public class EkleCikar extends javax.swing.JFrame {
                                 JOptionPane.showMessageDialog(this, "Güncellemek istediğiniz ürün listede mevcut değil. Lütfen ürün ekle butonuna tıklayın.");
                                 break;
                             } else { //eğer ürün varsa günceller
-                                try {
-                                    //stok sayısını girilen string değerinden integer'a çevirme
-                                    //int stok = Integer.parseInt(stokF.getText());
-                                    int stok = (Integer) (stokSpinner.getValue());
-                                    PreparedStatement ps2;
-                                    //ürünün adıyla veritabanında stok güncellemesi yapma
-                                    ps2 = b.c.prepareStatement("UPDATE KATIGIDA SET KGSTOK = ? WHERE KGADI = ?;");
-                                    ps2.setInt(1, stok);
-                                    ps2.setString(2, urunAdi);
-                                    ps2.executeUpdate();
-                                    b.baglantiKes();
-                                    JOptionPane.showMessageDialog(this, "Ürün stoğu güncellendi. Lütfen listeyi güncelleyiniz.");
-                                    urunAdiF.setText("");
-                                    //stokF.setText("");
-                                    stokSpinner.setValue(0);
-                                    break;
-                                } catch (NumberFormatException e) { //eğer stok adedine integer dışında bir değer girilirse
-                                    JOptionPane.showMessageDialog(this, "Stok adedine sadece tamsayı giriniz!");
-                                    break;
-                                }
+                                //stok sayısını girilen string değerinden integer'a çevirme
+                                //int stok = Integer.parseInt(stokF.getText());
+                                int stok = (Integer) (stokSpinner.getValue());
+                                PreparedStatement ps2;
+                                //ürünün adıyla veritabanında stok güncellemesi yapma
+                                ps2 = b.c.prepareStatement("UPDATE KATIGIDA SET KGSTOK = ? WHERE KGADI = ?;");
+                                ps2.setInt(1, stok);
+                                ps2.setString(2, urunAdi);
+                                ps2.executeUpdate();
+                                b.baglantiKes();
+                                JOptionPane.showMessageDialog(this, "Ürün stoğu güncellendi. Lütfen listeyi güncelleyiniz.");
+                                urunAdiF.setText("");
+                                //stokF.setText("");
+                                stokSpinner.setValue(0);
+                                break;
                             }
                         }
                         break;
-                    } catch (ClassNotFoundException | SQLException ex) {
+                    } catch (SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 case 2: //sıvı gıda seçili ise
                     try {
-                        b.baglan();
                         ps1 = b.c.prepareStatement("SELECT * FROM SIVIGIDA");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
@@ -540,19 +538,18 @@ public class EkleCikar extends javax.swing.JFrame {
                                     //stokF.setText("");
                                     stokSpinner.setValue(0);
                                     break;
-                                } catch (NumberFormatException e) { //eğer stok adedine integer dışında bir değer girilirse
+                               } catch (NumberFormatException e) { //eğer stok adedine integer dışında bir değer girilirse
                                     JOptionPane.showMessageDialog(this, "Stok adedine sadece tamsayı giriniz!");
                                     break;
                                 }
                             }
                         }
                         break;
-                    } catch (ClassNotFoundException | SQLException ex) {
+                    } catch (SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 case 3: //temizlik seçili ise
                     try {
-                        b.baglan();
                         ps1 = b.c.prepareStatement("SELECT * FROM TEMIZLIK");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
@@ -585,12 +582,11 @@ public class EkleCikar extends javax.swing.JFrame {
                             }
                         }
                         break;
-                    } catch (ClassNotFoundException | SQLException ex) {
+                    } catch (SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 case 4: //bakım seçili ise
                     try {
-                        b.baglan();
                         ps1 = b.c.prepareStatement("SELECT * FROM BAKIM");
                         rs = ps1.executeQuery();
                         while (rs.next()) {
@@ -623,7 +619,7 @@ public class EkleCikar extends javax.swing.JFrame {
                             }
                         }
                         break;
-                    } catch (ClassNotFoundException | SQLException ex) {
+                    } catch (SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 default:
@@ -633,6 +629,8 @@ public class EkleCikar extends javax.swing.JFrame {
     }//GEN-LAST:event_stokguncellebActionPerformed
 
     private void listeguncellebActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_listeguncellebActionPerformed
+        //önce combocox'taki diğer ürünleri temizleme
+        urunCB.removeAllItems();
         switch (cesitCB.getSelectedIndex()) {
             case 1:
                 Baglanti bkg = new Baglanti();
@@ -649,6 +647,8 @@ public class EkleCikar extends javax.swing.JFrame {
                         String urun = rskg.getString("KGADI") + "(" + rskg.getString("KGSTOK") + ")";
                         //Ürünü listeye ekleme
                         dlmkg.addElement(urun);
+                        //Ürünleri combobox'a ekleme
+                        urunCB.addItem(rskg.getString("KGADI"));
                     }
                     //Ürünler listesini liste'ye ekleme
                     liste.setModel(dlmkg);
@@ -673,6 +673,8 @@ public class EkleCikar extends javax.swing.JFrame {
                         String urun = rssg.getString("SGADI") + "(" + rssg.getString("SGSTOK") + ")";
                         //Ürünü listeye ekleme
                         dlmsg.addElement(urun);
+                        //Ürünleri combobox'a ekleme
+                        urunCB.addItem(rssg.getString("SGADI"));
                     }
                     //Ürünler listesini liste'ye ekleme
                     liste.setModel(dlmsg);
@@ -697,6 +699,8 @@ public class EkleCikar extends javax.swing.JFrame {
                         String urun = rst.getString("TADI") + "(" + rst.getString("TSTOK") + ")";
                         //Ürünü listeye ekleme
                         dlmt.addElement(urun);
+                        //Ürünleri combobox'a ekleme
+                        urunCB.addItem(rst.getString("TADI"));
                     }
                     //Ürünler listesini liste'ye ekleme
                     liste.setModel(dlmt);
@@ -721,6 +725,8 @@ public class EkleCikar extends javax.swing.JFrame {
                         String urun = rsb.getString("BADI") + "(" + rsb.getString("BSTOK") + ")";
                         //Ürünü listeye ekleme
                         dlmb.addElement(urun);
+                        //Ürünleri combobox'a ekleme
+                        urunCB.addItem(rsb.getString("BADI"));
                     }
                     //Ürünler listesini liste'ye ekleme
                     liste.setModel(dlmb);
@@ -765,10 +771,11 @@ public class EkleCikar extends javax.swing.JFrame {
                             ps2 = b.c.prepareStatement("DELETE FROM KATIGIDA WHERE KGADI = ?;");
                             ps2.setString(1, urunAdi);
                             ps2.executeUpdate();
-                            b.baglantiKes();
-                            JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
                             break;
                         }
+                    b.baglantiKes();
+                    JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
+                    break;
                     } catch (ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -783,10 +790,11 @@ public class EkleCikar extends javax.swing.JFrame {
                             ps2 = b.c.prepareStatement("DELETE FROM SIVIGIDA WHERE SGADI = ?;");
                             ps2.setString(1, urunAdi);
                             ps2.executeUpdate();
-                            b.baglantiKes();
-                            JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
                             break;
                         }
+                    b.baglantiKes();
+                    JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
+                    break;
                     } catch (ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -801,10 +809,11 @@ public class EkleCikar extends javax.swing.JFrame {
                             ps2 = b.c.prepareStatement("DELETE FROM TEMIZLIK WHERE TADI = ?;");
                             ps2.setString(1, urunAdi);
                             ps2.executeUpdate();
-                            b.baglantiKes();
-                            JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
                             break;
                         }
+                    b.baglantiKes();
+                    JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
+                    break;
                     } catch (ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -819,10 +828,11 @@ public class EkleCikar extends javax.swing.JFrame {
                             ps2 = b.c.prepareStatement("DELETE FROM BAKIM WHERE BADI = ?;");
                             ps2.setString(1, urunAdi);
                             ps2.executeUpdate();
-                            b.baglantiKes();
-                            JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
                             break;
                         }
+                    b.baglantiKes();
+                    JOptionPane.showMessageDialog(this, "Ürün kaldırıldı. Lütfen listeyi güncelleyiniz.");
+                    break;
                     } catch (ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(EkleCikar.class.getName()).log(Level.SEVERE, null, ex);
                     }

@@ -1,8 +1,11 @@
+import java.awt.Event;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 public class LoginSignup extends javax.swing.JFrame {
@@ -17,6 +20,8 @@ public class LoginSignup extends javax.swing.JFrame {
     private void initComponents() {
 
         mudurCalisan = new javax.swing.ButtonGroup();
+        popup = new javax.swing.JPopupMenu();
+        exit = new javax.swing.JMenuItem();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         girisSekme = new javax.swing.JPanel();
         g_kAdiLabel = new javax.swing.JLabel();
@@ -27,16 +32,29 @@ public class LoginSignup extends javax.swing.JFrame {
         uyelikSekme = new javax.swing.JPanel();
         u_kAdiLabel = new javax.swing.JLabel();
         u_sifreLabel = new javax.swing.JLabel();
+        emailLabel = new javax.swing.JLabel();
         secim = new javax.swing.JLabel();
         u_kAdiTextF = new javax.swing.JTextField();
         u_sifrePassF = new javax.swing.JPasswordField();
+        emailTextF = new javax.swing.JTextField();
         mudurRB = new javax.swing.JRadioButton();
         calisanRB = new javax.swing.JRadioButton();
         uyeOlButton = new javax.swing.JButton();
 
+        exit.setText("Programdan Çık");
+        exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitActionPerformed(evt);
+            }
+        });
+        popup.add(exit);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Giriş yap / Üye Ol");
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setResizable(false);
+
+        girisSekme.setComponentPopupMenu(popup);
 
         g_kAdiLabel.setText("Kullanıcı Adı:");
 
@@ -91,6 +109,8 @@ public class LoginSignup extends javax.swing.JFrame {
 
         u_sifreLabel.setText("Şifre:");
 
+        emailLabel.setText("Email:");
+
         secim.setText("Lütfen seçiniz:");
 
         mudurCalisan.add(mudurRB);
@@ -114,22 +134,26 @@ public class LoginSignup extends javax.swing.JFrame {
             .addGroup(uyelikSekmeLayout.createSequentialGroup()
                 .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(uyelikSekmeLayout.createSequentialGroup()
-                        .addGap(48, 48, 48)
+                        .addGap(58, 58, 58)
                         .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(u_kAdiLabel)
                             .addComponent(u_sifreLabel)
-                            .addComponent(secim))
+                            .addComponent(emailLabel))
                         .addGap(18, 18, 18)
                         .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(uyelikSekmeLayout.createSequentialGroup()
-                                .addComponent(mudurRB)
-                                .addGap(18, 18, 18)
-                                .addComponent(calisanRB))
                             .addComponent(u_kAdiTextF)
-                            .addComponent(u_sifrePassF, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(u_sifrePassF, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .addComponent(emailTextF)))
                     .addGroup(uyelikSekmeLayout.createSequentialGroup()
                         .addGap(164, 164, 164)
-                        .addComponent(uyeOlButton)))
+                        .addComponent(uyeOlButton))
+                    .addGroup(uyelikSekmeLayout.createSequentialGroup()
+                        .addGap(50, 50, 50)
+                        .addComponent(secim)
+                        .addGap(18, 18, 18)
+                        .addComponent(mudurRB)
+                        .addGap(18, 18, 18)
+                        .addComponent(calisanRB)))
                 .addContainerGap(60, Short.MAX_VALUE))
         );
         uyelikSekmeLayout.setVerticalGroup(
@@ -143,14 +167,18 @@ public class LoginSignup extends javax.swing.JFrame {
                 .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(u_sifreLabel)
                     .addComponent(u_sifrePassF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(emailLabel)
+                    .addComponent(emailTextF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(uyelikSekmeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(secim)
                     .addComponent(mudurRB)
                     .addComponent(calisanRB))
-                .addGap(50, 50, 50)
+                .addGap(18, 18, 18)
                 .addComponent(uyeOlButton)
-                .addContainerGap(59, Short.MAX_VALUE))
+                .addContainerGap(56, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Üye Ol", uyelikSekme);
@@ -175,42 +203,34 @@ public class LoginSignup extends javax.swing.JFrame {
         //girilen bilgileri alıp string'de tutma
         String kAdi = g_kAdiTextF.getText();
         String sifre = g_sifrePassF.getText();
-        
-        //veritabanına bağlantı kurma
-        Baglanti b = new Baglanti();
-        //SQL sorgusu için oluşturulan nesneler
-        PreparedStatement ps1;
-        PreparedStatement ps2;
-        ResultSet rs1;
-        ResultSet rs2;
-        try {
-            b.baglan();
-            //veritabanında girilen bilgilerin doğruluğunu sorgulama
-            ps1=b.c.prepareStatement("SELECT KADI FROM KULLANICILAR");
-            ps2=b.c.prepareStatement("SELECT SIFRE FROM KULLANICILAR");
-            rs1=ps1.executeQuery();
-            rs2=ps2.executeQuery();
-            while (rs1.next() && rs2.next()) {
-                //girilen bilgiler doğruysa devam
-                if(kAdi.equals(rs1.getString("KADI")) && sifre.equals(rs2.getString("SIFRE"))) {
-                    b.baglantiKes();
-                    dispose(); //login sayfasını kapatır
-                    Marketim m = new Marketim();
-                    m.setVisible(true); //anasayfayı açar
-                }
-                //boş alan bırakınca uyarı ver
-                else if (kAdi.equals("") || sifre.equals("")) {
-                    JOptionPane.showMessageDialog(this, "Lütfen kullanıcı adınızı veya şifrenizi giriniz.");
-                }
-                else { //girilen bilgiler yanlışsa uyarı ver
-                    JOptionPane.showMessageDialog(this, "Kullanıcı adı veya şifre yanlış.");
-                }
+        if (kAdi.equals("") || sifre.equals("")) {
+            JOptionPane.showMessageDialog(this, "Lütfen kullanıcı adınızı veya şifrenizi giriniz.");
         }
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(LoginSignup.class.getName()).log(Level.SEVERE, null, ex);
+        else {
+            //veritabanına bağlantı kurma
+            Baglanti b = new Baglanti();
+            //SQL sorgusu için oluşturulan nesneler
+            PreparedStatement ps;
+            ResultSet rs;
+            try {
+                b.baglan();
+                //veritabanında girilen bilgilerin doğruluğunu sorgulama
+                ps=b.c.prepareStatement("SELECT * FROM KULLANICILAR WHERE KADI=? AND SIFRE=?");
+                ps.setString(1, kAdi);
+                ps.setString(2, sifre);
+                rs=ps.executeQuery();
+                while (rs.next()) {
+                        b.baglantiKes();
+                        dispose(); //login sayfasını kapatır
+                        Marketim m = new Marketim();
+                        m.setVisible(true); //anasayfayı açar
+                }
+                //while'a girmezse girilen bilgiler yanlış uyarısı ver
+                JOptionPane.showMessageDialog(this, "Kullanıcı adı veya şifre yanlış.");
+            } catch (ClassNotFoundException | SQLException ex) {
+                Logger.getLogger(LoginSignup.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        
-         
     }//GEN-LAST:event_girisYapButtonActionPerformed
 
     private void uyeOlButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uyeOlButtonActionPerformed
@@ -218,11 +238,17 @@ public class LoginSignup extends javax.swing.JFrame {
         //girilen bilgileri alıp string'de tutma
         String kAdi = u_kAdiTextF.getText();
         String sifre = u_sifrePassF.getText();
+        String mail = emailTextF.getText();
+        Pattern p = Pattern.compile("^(.+)@(.+)$");
+        Matcher m = p.matcher(mail);
         String tur=null;
         
         //boş bilgi girmesini önleme
-        if(kAdi.equals("") || sifre.equals("")) {
+        if(kAdi.equals("") || sifre.equals("") || mail.equals("")) {
             JOptionPane.showMessageDialog(this, "Lütfen bilgilerinizi eksiksiz giriniz!");
+        }
+        else if(!m.find()) {
+            JOptionPane.showMessageDialog(this, "Emailinizde uygun olmayan karakterler bulunmuştur.");
         }
         else{
             //kullanıcı türünü belirleme
@@ -239,20 +265,30 @@ public class LoginSignup extends javax.swing.JFrame {
             PreparedStatement ps;
             try {
                 b.baglan();
-                ps = b.c.prepareStatement("INSERT INTO KULLANICILAR(KADI,SIFRE,TUR) VALUES (?,?,?)");
+                ps = b.c.prepareStatement("INSERT INTO KULLANICILAR(KADI,SIFRE,TUR,EMAIL) VALUES (?,?,?,?)");
                 //Alacağımız değerleri sorguya yerleştiriyoruz
                 ps.setString(1, kAdi);
                 ps.setString(2, sifre);
                 ps.setString(3, tur);
+                ps.setString(4, mail);
                 //Değişikliği uygulatma
                 ps.executeUpdate();
                 b.baglantiKes();
+                JOptionPane.showMessageDialog(this, "Üyeliğiniz oluşturuldu. Giriş yapınız.");
                 
             } catch (ClassNotFoundException | SQLException ex) {
                 Logger.getLogger(LoginSignup.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }//GEN-LAST:event_uyeOlButtonActionPerformed
+
+    private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
+        Object[] secenekler = {"Evet","Hayır"};
+        int cevap = JOptionPane.showOptionDialog(null, "Programdan çıkmak istediğinize emin misiniz?", "Programdan çıkıyorsunuz...", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, secenekler, null);
+        if (cevap == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_exitActionPerformed
 
     /**
      * @param args the command line arguments
@@ -292,6 +328,9 @@ public class LoginSignup extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton calisanRB;
+    private javax.swing.JLabel emailLabel;
+    private javax.swing.JTextField emailTextF;
+    private javax.swing.JMenuItem exit;
     private javax.swing.JLabel g_kAdiLabel;
     private javax.swing.JTextField g_kAdiTextF;
     private javax.swing.JLabel g_sifreLabel;
@@ -301,6 +340,7 @@ public class LoginSignup extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup mudurCalisan;
     private javax.swing.JRadioButton mudurRB;
+    private javax.swing.JPopupMenu popup;
     private javax.swing.JLabel secim;
     private javax.swing.JLabel u_kAdiLabel;
     private javax.swing.JTextField u_kAdiTextF;
